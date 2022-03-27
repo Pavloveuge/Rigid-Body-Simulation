@@ -17,13 +17,13 @@ void VisualizerOpenGL::ChangeSize(int w, int h) {
     glMatrixMode(GL_MODELVIEW);
 }
 
-void VisualizerOpenGL::DrawCircle(std::vector<std::vector<double>> R){
+void VisualizerOpenGL::DrawCylinder(std::vector<std::vector<double>> R){
     double radius = CurrentInstance->m.GetParams().radius;
     double height = CurrentInstance->m.GetParams().height;
     Calculator A;
     glBegin(GL_LINES);
     glColor3f(0.0f, .0f, 255.0f);
-    for (float i = 0.0; i <= 2 * PI; i += 0.1){
+    for (float i = 0.0; i <= 2 * PI; i += 0.02){
         std::vector<double> top = {cos(i)*radius, sin(i)*radius, height / 2};
         std::vector<double> bottom = {cos(i)*radius, sin(i)*radius, - height / 2};
         top = A.MatrixOnVector(R, top);
@@ -66,7 +66,7 @@ void VisualizerOpenGL::RenderScene(){
     glEnd();
     glPointSize(1);
     glTranslatef(center[0], center[1], center[2]);
-    DrawCircle(CurrentInstance->m.GetState().R);
+    DrawCylinder(CurrentInstance->m.GetState().R);
     glPopMatrix();
     glutSwapBuffers();
 }

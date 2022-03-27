@@ -20,7 +20,7 @@ public:
     static void ChangeCallback(int w, int h);
     static void TimerCallback(int value);
     void ShowFloor();
-    void DrawCircle(std::vector<std::vector<double>> R);
+    void DrawCylinder(std::vector<std::vector<double>> R);
     static VisualizerOpenGL* CurrentInstance;
     VisualizerOpenGL();
     VisualizerOpenGL(State& state, Params params);
