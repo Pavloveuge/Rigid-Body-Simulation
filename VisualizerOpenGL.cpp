@@ -9,7 +9,7 @@ void VisualizerOpenGL::ChangeSize(int w, int h) {
     glMatrixMode(GL_PROJECTION);
     // clear matrix
     glLoadIdentity();
-    // set viewport parametrs
+    // set viewport parameters
     glViewport(0, 0, w, h);
     // set correct perspective
     gluPerspective(45.0f, ratio, 0.1f, 100.0f);

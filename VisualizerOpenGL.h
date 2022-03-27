@@ -12,6 +12,9 @@
 
 
 class VisualizerOpenGL{
+    /*
+     This class using for visualisation. I used Callback to work with OpenGL in OOP style
+     */
 public:
     static void RenderCallback();
     static void ChangeCallback(int w, int h);

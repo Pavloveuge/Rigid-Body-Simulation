@@ -3,6 +3,7 @@
 
 VisualizerOpenGL* VisualizerOpenGL::CurrentInstance = NULL;
 int main(int argc, char **argv) {
+    //init some parameters
     double rev_mass = 0.0001;
     double height = 4, radius = 2, h = 0.001, g = -9.81;
     std::vector<std::vector<double>> rev_I = {

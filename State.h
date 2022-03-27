@@ -3,6 +3,7 @@
 #include <vector>
 
 struct State{
+    //Struct, which describe material point
 public:
     std::vector<double> c;
     std::vector<std::vector<double>> R;
@@ -18,12 +19,13 @@ public:
 
 
 struct Params{
-    double rev_mass;
+    //Struct, which store some parameters
+    double rev_mass; // inverse mass
     double height;
     double radius;
-    std::vector<std::vector<double>> rev_I;
-    double h;
-    double g;
+    std::vector<std::vector<double>> rev_I; // inverse inertia tensor
+    double h; // step of integrate
+    double g; // gravity coefficient
 };
 
 #endif //RIGID_BODY_SIMULATION_STATE_H

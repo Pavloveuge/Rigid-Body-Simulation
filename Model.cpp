@@ -10,6 +10,9 @@ Model::Model(State* StartState, Params params) {
 }
 
 void Model::CheckCollisionCylinder(State *X, double radius, double height) {
+    /*
+     This method check that all points are above the floor and implements logic of collision if not
+     */
     Calculator A;
     std::vector<double> top_corr = {0, 0, 0};
     std::vector<double> bot_corr = {0, 0, 0};
@@ -31,6 +34,7 @@ void Model::CheckCollisionCylinder(State *X, double radius, double height) {
         bot_corr = {cos(i)*radius, sin(i)*radius, -height / 2};
         top_point = A.SumVector(X->c, A.MatrixOnVector(X->R, top_corr));
         bot_point = A.SumVector(X->c, A.MatrixOnVector(X->R, bot_corr));
+
         if (top_point[2] < 0.01){
             pt_vel_top = A.SumVector(A.VectorProduct(omega, top_point), par_imp)[2];
             if (pt_vel_top < 0){
@@ -46,10 +50,12 @@ void Model::CheckCollisionCylinder(State *X, double radius, double height) {
             }
         }
     }
+
     for (int i = 0; i < 3; i++){
         mid[i] = mid[i] / cnt;
         mid_local[i] = mid[i] - X->c[i];
     }
+
     v_rel = A.SumVector(A.VectorProduct(omega, mid), par_imp)[2];
     double numerator = -2 * v_rel;
     double denominator = this->params.rev_mass + A.ScalarProduct(normal, A.VectorProduct(A.MatrixOnVector(Iinv, A.VectorProduct(mid_local, normal)), mid_local));
@@ -63,6 +69,10 @@ void Model::CheckCollisionCylinder(State *X, double radius, double height) {
 }
 
 bool Model::CheckPoints(State *X, double radius, double height) {
+    /*
+     This method using to check that all points are above the floor
+     Because this model of cylinder enough to check extreme points(top and bottom of figure)
+     */
     Calculator A;
     std::vector<double> top_corr = {0, 0, 0};
     std::vector<double> bot_corr = {0, 0, 0};
@@ -70,9 +80,11 @@ bool Model::CheckPoints(State *X, double radius, double height) {
     std::vector<double> bot_point = {0, 0, 0};
     std::vector<double> par_imp = {0, 0, 0};
     double pt_vel_top = 0, pt_vel_bot = 0;
+
     for (int k = 0; k < 3; k++){
         par_imp[k] = X->p[k] * this->params.rev_mass;
     }
+
     std::vector<std::vector<double>> Iinv = A.MultMatrix(X->R, A.MultMatrix(this->params.rev_I, A.T(X->R)));
     std::vector<double> omega = A.MatrixOnVector(Iinv, X->L);
     for (float i = 0.0; i <= 2 * PI; i += 0.05){
@@ -80,13 +92,15 @@ bool Model::CheckPoints(State *X, double radius, double height) {
         bot_corr = {cos(i)*radius, sin(i)*radius, -height / 2};
         top_point = A.SumVector(X->c, A.MatrixOnVector(X->R, top_corr));
         bot_point = A.SumVector(X->c, A.MatrixOnVector(X->R, bot_corr));
-        if (top_point[2] < 0.01){
+
+        if (top_point[2] < 0.01){ // check top
             pt_vel_top = A.SumVector(A.VectorProduct(omega, top_point), par_imp)[2];
             if (pt_vel_top < 0){
                 return false;
             }
         }
-        if (bot_point[2] < 0){
+
+        if (bot_point[2] < 0){ // check bottom
             pt_vel_bot = A.SumVector(A.VectorProduct(omega, bot_point), par_imp)[2];
             if (pt_vel_bot < 0){
                 return false;
@@ -97,17 +111,18 @@ bool Model::CheckPoints(State *X, double radius, double height) {
 }
 
 void Model::f(State *X, State *Xdot){
+
     for (int i=0; i < 3; i++){
-        Xdot->c[i] = X->p[i] * this->params.rev_mass;
+        Xdot->c[i] = X->p[i] * this->params.rev_mass; // derivative of coordinate
     }
-    Xdot->p[2] = - 9.81 / this->params.rev_mass;
+    Xdot->p[2] = params.g / this->params.rev_mass; // derivative of momentum
     Calculator A = Calculator();
     std::vector<std::vector<double>> inv = A.MultMatrix(A.MultMatrix(X->R, this->params.rev_I), A.T(X->R));
     std::vector<double> omega = A.MatrixOnVector(inv, X->L);
-    std::vector<std::vector<double>> skew = {{0, -omega[2], omega[1]},
+    std::vector<std::vector<double>> skew = {{0, -omega[2], omega[1]}, // calculate skew matrix
                                              {omega[2], 0, -omega[0]},
                                              {-omega[1], omega[0], 0}};
-    Xdot->R = A.MultMatrix(skew, X->R);
+    Xdot->R = A.MultMatrix(skew, X->R); // derivative of rotate matrix
 }
 
 State Model::GetState(){
@@ -133,6 +148,4 @@ void Model::NextRK4(){
     while (not(CheckPoints(CurrentState, params.radius, params.height))){
         CheckCollisionCylinder(CurrentState, params.radius, params.height);
     }
-    //CurrentState->L = CurrentState->L * this->params[1];
-    //CurrentState->p = CurrentState->p * this->params[1];
 }

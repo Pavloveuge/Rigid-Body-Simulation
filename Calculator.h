@@ -4,6 +4,9 @@
 #include <cmath>
 
 class Calculator {
+    /*
+     This class implement some operations from linear algebra
+     */
 public:
     std::vector<double> VectorProduct(std::vector<double> a, std::vector<double> b);
     double ScalarProduct(std::vector<double> a, std::vector<double> b);
