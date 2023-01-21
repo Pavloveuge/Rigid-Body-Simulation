@@ -1,7 +1,6 @@
 #ifndef RIGID_BODY_SIMULATION_MODEL_H
 #define RIGID_BODY_SIMULATION_MODEL_H
 #include "State.h"
-#include "Calculator.h"
 #include <iostream>
 #define PI 3.14159265359
 
