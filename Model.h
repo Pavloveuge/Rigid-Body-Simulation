@@ -2,6 +2,7 @@
 #define RIGID_BODY_SIMULATION_MODEL_H
 #include "State.h"
 #include "Calculator.h"
+#include <iostream>
 #define PI 3.14159265359
 
 class Model {
@@ -11,7 +12,7 @@ class Model {
      For differential equations was used RK4 method.
      */
 public:
-    Model(State* StartState, Params params);
+    Model(State StartState, Params params);
     Model();
     void NextRK4(); // step of RK4
     void CheckCollisionCylinder(State* X, double radius, double height);

@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <iostream>
 #include "Model.h"
+#include "Matrix.h"
 
 
 class VisualizerOpenGL{
@@ -20,7 +21,7 @@ public:
     static void ChangeCallback(int w, int h);
     static void TimerCallback(int value);
     void ShowFloor();
-    void DrawCylinder(std::vector<std::vector<double>> R);
+    void DrawCylinder(Matrix R);
     static VisualizerOpenGL* CurrentInstance;
     VisualizerOpenGL();
     VisualizerOpenGL(State& state, Params params);

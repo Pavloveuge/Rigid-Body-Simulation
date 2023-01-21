@@ -17,19 +17,20 @@ void VisualizerOpenGL::ChangeSize(int w, int h) {
     glMatrixMode(GL_MODELVIEW);
 }
 
-void VisualizerOpenGL::DrawCylinder(std::vector<std::vector<double>> R){
+void VisualizerOpenGL::DrawCylinder(Matrix R){
     double radius = CurrentInstance->m.GetParams().radius;
     double height = CurrentInstance->m.GetParams().height;
-    Calculator A;
     glBegin(GL_LINES);
     glColor3f(0.0f, .0f, 255.0f);
     for (float i = 0.0; i <= 2 * PI; i += 0.02){
-        std::vector<double> top = {cos(i)*radius, sin(i)*radius, height / 2};
-        std::vector<double> bottom = {cos(i)*radius, sin(i)*radius, - height / 2};
-        top = A.MatrixOnVector(R, top);
-        bottom = A.MatrixOnVector(R, bottom);
-        glVertex3f(top[0], top[1], top[2]);
-        glVertex3f(bottom[0], bottom[1], bottom[2]);
+        Matrix top(3, 1);
+        Matrix bottom(3, 1);
+        top(0, 0) =  cos(i)*radius; top(1, 0) = sin(i) * radius; top(2, 0) = height / 2;
+        bottom(0, 0) =  cos(i)*radius; bottom(1, 0) = sin(i) * radius; bottom(2, 0) = -height / 2;
+        top = R * top;
+        bottom = R * bottom;
+        glVertex3f(top(0, 0), top(1, 0), top(2, 0));
+        glVertex3f(bottom(0, 0), bottom(1, 0), bottom(2, 0));
     }
     glEnd();
 }
@@ -61,11 +62,12 @@ void VisualizerOpenGL::RenderScene(){
     glPointSize(10);
     glBegin(GL_POINTS);
     glColor3f(0,125,0);
-    std::vector<double> center = CurrentInstance->m.GetState().c;
-    glVertex3f(center[0], center[1], center[2]);
+    Matrix center = CurrentInstance->m.GetState().c;
+    glVertex3f(center(0, 0), center(1,0), center(2, 0));
+    std::cout << center(0, 0) << " " << center(1, 0) << " " << center(2, 0) << "\n";
     glEnd();
     glPointSize(1);
-    glTranslatef(center[0], center[1], center[2]);
+    glTranslatef(center(0, 0), center(1, 0), center(2, 0));
     DrawCylinder(CurrentInstance->m.GetState().R);
     glPopMatrix();
     glutSwapBuffers();
@@ -75,7 +77,7 @@ void VisualizerOpenGL::Init(int argc, char **argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
     glutInitWindowPosition(100,100);
-    glutInitWindowSize(800,800);
+    glutInitWindowSize(1920,1080);
     glutCreateWindow("Rigid-Body-Simulation");
 
     glutDisplayFunc(VisualizerOpenGL::RenderCallback);
@@ -105,5 +107,5 @@ VisualizerOpenGL::VisualizerOpenGL(){
 
 VisualizerOpenGL::VisualizerOpenGL(State& state, Params params){
     CurrentInstance = this;
-    CurrentInstance->m = Model(&state, params);
+    CurrentInstance->m = Model(state, params);
 }
