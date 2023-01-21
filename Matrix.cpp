@@ -261,3 +261,15 @@ Matrix Matrix::VectorProduct(Matrix m1, Matrix m2){
 
     return res;
 }
+
+void Matrix::print() {
+    int rows = this->Size().first, columns = this->Size().second;
+
+    for (int i = 0; i < rows; i++){
+        for (int j = 0; j < columns; j++){
+            std::cout << this->data[i][j] << " ";
+        }
+        std::cout << "\n";
+    }
+    std::cout << "\n";
+}

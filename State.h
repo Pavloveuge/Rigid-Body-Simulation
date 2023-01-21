@@ -22,8 +22,7 @@ public:
 struct Params{
     //Struct, which store some parameters
     double rev_mass; // inverse mass
-    double height;
-    double radius;
+    double size_side;
     Matrix rev_I; // inverse inertia tensor
     double h; // step of integrate
     double g; // gravity coefficient

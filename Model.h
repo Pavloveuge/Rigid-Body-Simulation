@@ -14,8 +14,8 @@ public:
     Model(State StartState, Params params);
     Model();
     void NextRK4(); // step of RK4
-    void CheckCollisionCylinder(State* X, double radius, double height);
-    bool CheckPoints(State* X, double radius, double height);
+    void CheckCollisionCube(State* X);
+    bool CheckPoints(State* X);
     State GetState();
     Params GetParams();
 private:

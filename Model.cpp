@@ -13,7 +13,7 @@ Model::Model(State StartState, Params params) {
     this->params = params;
 }
 
-void Model::CheckCollisionCylinder(State *X, double radius, double height) {
+void Model::CheckCollisionCube(State *X) {
     /*
      This method check that all points are above the floor and implements logic of collision if not
      */
@@ -26,31 +26,34 @@ void Model::CheckCollisionCylinder(State *X, double radius, double height) {
     Matrix mid_local(3, 1);
     Matrix normal(3, 1);
     normal(2, 0) = 1;
-    double pt_vel_top = 0, pt_vel_bot = 0, v_rel = 0;
+    double pt_vel_top = 0, v_rel = 0;
     int cnt = 0;
     for (int k = 0; k < 3; k++){
         par_imp(k, 0) = X->p(k, 0) * this->params.rev_mass;
     }
     Matrix Iinv = X->R * this->params.rev_I * (X->R).T();
     Matrix omega = Iinv * X->L;
-    for (float i = 0.0; i <= 2 * PI; i += 0.05){
-        top_corr(0, 0) =  cos(i)*radius; top_corr(1, 0) = sin(i) * radius; top_corr(2, 0) = height / 2;
-        bot_corr(0, 0) =  cos(i)*radius; bot_corr(1, 0) = sin(i) * radius; bot_corr(2, 0) = -height / 2;
-        top_point = X->c + X->R * top_corr;
-        bot_point = X->c + X->R * bot_corr;
 
-        if (top_point(2, 0) < 0.01){
-            pt_vel_top = (Matrix::VectorProduct(omega, top_point) + par_imp)(2, 0);
-            if (pt_vel_top < 0){
-                mid = mid + top_point;
-                cnt++;
-            }
+    Matrix correction(3, 1);
+    Matrix point(3, 1);
+
+    for (int i=0; i < 8; i++){
+        correction(0, 0) = (-0.5 + (i & 1)) * this->params.size_side;
+        correction(1, 0) = (-0.5 + (i & 2) / 2.0) * this->params.size_side;
+        correction(2, 0) = (-0.5 + (i & 4) / 4.0) * this->params.size_side;
+
+        Matrix ans(3,1);
+        for (int j = 0; j < 3; j++){
+            ans(j, 0) = correction(0, 0) * X->R(j, 0) + correction(1, 0) * X->R(j, 1) + correction(2, 0) * X->R(j, 2);
         }
 
-        if (bot_point(2, 0) < 0){
-            pt_vel_bot = (Matrix::VectorProduct(omega, bot_point) + par_imp)(2, 0);
-            if (pt_vel_bot < 0){
-                mid = mid + bot_point;
+        for (int j = 0; j < 3; j++){
+            point(j, 0) = X->c(j, 0) + ans(j, 0); // получили итоговые координаты
+        }
+
+        if (point(2, 0) < 0.01){
+            pt_vel_top = (Matrix::VectorProduct(omega, point) + par_imp)(2, 0);
+            if (pt_vel_top < 0){
                 cnt++;
             }
         }
@@ -77,7 +80,7 @@ void Model::CheckCollisionCylinder(State *X, double radius, double height) {
     }
 }
 
-bool Model::CheckPoints(State *X, double radius, double height) {
+bool Model::CheckPoints(State *X) {
     /*
      This method using to check that all points are above the floor
      Because this model of cylinder enough to check extreme points(top and bottom of figure)
@@ -95,28 +98,33 @@ bool Model::CheckPoints(State *X, double radius, double height) {
 
     Matrix Iinv = X->R * this->params.rev_I * (X->R).T();
     Matrix omega = Iinv * X->L;
-    for (float i = 0.0; i <= 2 * PI; i += 0.05){
-        top_corr(0, 0) =  cos(i)*radius; top_corr(1, 0) = sin(i) * radius; top_corr(2, 0) = height / 2;
-        bot_corr(0, 0) =  cos(i)*radius; bot_corr(1, 0) = sin(i) * radius; bot_corr(2, 0) = -height / 2;
-        top_point = X->c + X->R * top_corr;
-        bot_point = X->c + X->R * bot_corr;
 
-        if (top_point(2, 0) < 0.01){ // check top
-            pt_vel_top = (Matrix::VectorProduct(omega, top_point) + par_imp)(2, 0);
-            if (pt_vel_top < 0){
-                std::cout << "top";
-                return false;
-            }
+    Matrix correction(3, 1);
+    Matrix point(3, 1);
+
+    for (int i=0; i < 8; i++){
+        correction(0, 0) = (-0.5 + (i & 1)) * this->params.size_side;
+        correction(1, 0) = (-0.5 + (i & 2) / 2.0) * this->params.size_side;
+        correction(2, 0) = (-0.5 + (i & 4) / 4.0) * this->params.size_side;
+
+        Matrix ans(3,1);
+        for (int j = 0; j < 3; j++){
+            ans(j, 0) = correction(0, 0) * X->R(j, 0) + correction(1, 0) * X->R(j, 1) + correction(2, 0) * X->R(j, 2);
         }
 
-        if (bot_point(2, 0) < 0){ // check bottom
-            pt_vel_bot = (Matrix::VectorProduct(omega, bot_point) + par_imp)(2, 0);
-            if (pt_vel_bot < 0){
-                std::cout << "bot";
+        for (int j = 0; j < 3; j++){
+            point(j, 0) = X->c(j, 0) + ans(j, 0); // получили итоговые координаты
+        }
+
+
+        if (point(2, 0) < 0.01){
+            pt_vel_top = (Matrix::VectorProduct(omega, point) + par_imp)(2, 0);
+            if (pt_vel_top < 0){
                 return false;
             }
         }
     }
+
     return true;
 }
 
@@ -155,8 +163,7 @@ void Model::NextRK4(){
     f(&prom, &k4);
     Xdot = (k1 + 2 * k2 + 2 * k3 + k4);
     *CurrentState = *CurrentState + params.h / 6 * Xdot;
-    std::cout << "some";
-    while (not(CheckPoints(CurrentState, params.radius, params.height))){
-        CheckCollisionCylinder(CurrentState, params.radius, params.height);
+    while (not(CheckPoints(CurrentState))){
+        CheckCollisionCube(CurrentState);
     }
 }

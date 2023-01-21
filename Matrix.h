@@ -31,6 +31,7 @@ public:
     Matrix Inv();
     Matrix Cofactor();
     Matrix invertLT();
+    void print();
 private:
     std::vector<std::vector<double>> data;
 };

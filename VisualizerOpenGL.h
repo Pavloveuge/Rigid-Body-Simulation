@@ -21,7 +21,7 @@ public:
     static void ChangeCallback(int w, int h);
     static void TimerCallback(int value);
     void ShowFloor();
-    void DrawCylinder(Matrix R);
+    void DrawCube();
     static VisualizerOpenGL* CurrentInstance;
     VisualizerOpenGL();
     VisualizerOpenGL(State& state, Params params);
