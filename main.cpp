@@ -11,9 +11,6 @@ int main(int argc, char **argv) {
     rev_I(0, 0) = height * height / (12 * rev_mass) + radius * radius / (4 * rev_mass);
     rev_I(1, 1) = height * height / (12 * rev_mass) + radius * radius / (4 * rev_mass);
     rev_I(2, 2) = radius * radius / (2 * rev_mass);
-    rev_I(0, 0) = 1;
-    rev_I(1, 1) = 1;
-    rev_I(2, 2) = 2;
 
     Params params = {rev_mass, height, radius, rev_I.Inv(), h, g};
     Matrix R(3, 3);
